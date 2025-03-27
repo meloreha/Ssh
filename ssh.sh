@@ -13,6 +13,18 @@ users=(
 
 # Loop through the list and create each user
 for user in "${users[@]}"; do
+    # Create user with a home directory and bash shell
     sudo useradd -m -s /bin/bash "$user"
-    echo "User $user created."
+    
+    # Generate a random password
+    password=$(openssl rand -base64 12)
+
+    # Set the password for the user
+    echo "$user:$password" | sudo chpasswd
+
+    # Force password change on first login (optional)
+    sudo chage -d 0 "$user"
+
+    # Output the generated password (for logging purposes)
+    echo "User $user created with password: $password"
 done
