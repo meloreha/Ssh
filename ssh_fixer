@@ -1,0 +1,144 @@
+#!/bin/bash
+
+ip a
+
+# debian
+echo "what interface?"
+read INT
+echo "source /etc/network/interfaces.d/*" > /etc/network/interfaces
+echo "auto lo" >> /etc/network/interfaces
+echo "iface lo inet loopback" >> /etc/network/interfaces
+echo "auto $INT" >> /etc/network/interfaces
+echo "iface $INT inet static" >> /etc/network/interfaces
+echo "address 172.18.14.13" >> /etc/network/interfaces
+echo "netmask 255.255.0.0" >> /etc/network/interfaces
+
+systemctl restart networking
+
+export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/bin:/bin:/usr/local/games:/usr/games"
+
+chr=/bruh/lol
+
+
+# install vsftpd server
+if ! which vsftpd > /dev/null; then
+   echo -e "Command not found! Install? (y/n) \c"
+   read REPLY
+   if [ "$REPLY" = "y" ]; then
+  	apt install openssh-server -y
+   fi
+fi
+echo "==== finished installing openssh"
+systemctl enable sshd
+systemctl start sshd
+systemctl status sshd
+
+# install vsftpd server
+if ! which vsftpd > /dev/null; then
+   echo -e "Command not found! Install? (y/n) \c"
+   read REPLY
+   if [ "$REPLY" = "y" ]; then
+  	apt-get install vsftpd -y
+   fi
+fi
+echo "==== finished installing vsftpd"
+
+# install ftp client
+if ! which ftp > /dev/null; then
+   echo -e "Command not found! Install? (y/n) \c"
+   read REPLY
+   if [ "$REPLY" = "y" ]; then
+  	apt-get install ftp -y
+   fi
+fi
+echo "==== finished installing ftp"
+
+# backup original first
+cp /etc/vsftpd.conf > /root/vsftpd.conf.bak
+# replace with working ftp config
+echo "listen=NO" > /etc/vsftpd.conf
+echo "listen_ipv6=YES" >> /etc/vsftpd.conf
+echo "anonymous_enable=NO" >> /etc/vsftpd.conf
+echo "local_enable=YES" >> /etc/vsftpd.conf
+echo "write_enable=YES" >> /etc/vsftpd.conf
+echo "local_umask=022" >> /etc/vsftpd.conf
+echo "dirmessage_enable=YES" >> /etc/vsftpd.conf
+echo "use_localtime=YES" >> /etc/vsftpd.conf
+echo "xferlog_enable=YES" >> /etc/vsftpd.conf
+echo "connect_from_port_20=YES" >> /etc/vsftpd.conf
+echo "chroot_local_user=YES" >> /etc/vsftpd.conf
+echo "allow_writeable_chroot=YES" >> /etc/vsftpd.conf
+echo "secure_chroot_dir=/var/run/vsftpd/empty" >> /etc/vsftpd.conf
+echo "pam_service_name=vsftp" >> /etc/vsftpd.conf
+echo "rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem" >> /etc/vsftpd.conf
+echo "rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key" >> /etc/vsftpd.conf
+echo "ssl_enable=NO" >> /etc/vsftpd.conf
+echo "local_root=/bruh/lol" >> /etc/vsftpd.conf
+echo "pasv_enable=YES" >> /etc/vsftpd.conf
+echo "pasv_min_port=10000" >> /etc/vsftpd.conf
+echo "pasv_max_port=10025" >> /etc/vsftpd.conf
+systemctl enable vsftpd
+systemctl restart vsftpd
+systemctl status vsftpd
+
+names=("khanmigo" "myai" "tabcomplete" "gpt" "cortana" "codewhisperer" "claude" "musico" "chatbot" "codeium" "tabnine" "copilot" "watson" "tensorflow" "bard" "pytorch" "caffe2" "midjourney" "dalle" "llama" "theano" "aiva" "siri")
+
+# loop through names
+for i in "${names[@]}"; do
+	useradd -m -s /bin/bash "$i" # Create user with home directory and bash shell
+	echo -e "KNecP7xB\nKNecP7xB" | passwd $i
+	echo "User $i created successfully."
+
+done
+
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+touch ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+touch ~/.ssh/key ~/.ssh/key.pub
+
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCcM4aDj8Y4COv+f8bd2WsrIynlbRGgDj2+q9aBeW1Umj5euxnO1vWsjfkpKnyE/ORsI6gkkME9ojAzNAPquWMh2YG+n11FB1iZl2S6yuZB7dkVQZSKpVYwRvZv2RnYDQdcVnX9oWMiGrBWEAi4jxcYykz8nunaO2SxjEwzuKdW8lnnh2BvOO9RkzmSXIIdPYgSf8bFFC7XFMfRrlMXlsxbG3u/NaFjirfvcXKexz06L6qYUzob8IBPsKGaRjO+vEdg6B4lH1lMk1JQ4GtGOJH6zePfB6Gf7rp31261VRfkpbpaDAznTzh7bgpq78E7SenatNbezLDaGq3Zra3j53u7XaSVipkW0S3YcXczhte2J9kvo6u6s094vrcQfB9YigH4KhXpCErFk08NkYAEJDdqFqXIjvzsro+2/EW1KKB9aNPSSM9EZzhYc+cBAl4+ohmEPej1m15vcpw3k+kpo1NC2rwEXIFxmvTme1A2oIZZBpgzUqfmvSPwLXF0EyfN9Lk=" >> ~/.ssh/key
+
+cp ~/.ssh/key ~/.ssh/key.pub
+
+#copies the ssh public key to all users
+for i in ${names[@]}; do
+ssh-copy-id -i ~/.ssh/key "$i"@172.18.14.13
+done
+
+echo "Include /etc/ssh/sshd_config.d/*.conf" > /etc/ssh/sshd_config
+echo "LoginGraceTime 30" >> /etc/ssh/sshd_config
+echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+echo "StrictModes yes" >> /etc/ssh/sshd_config
+echo "MaxAuthTries 3" >> /etc/ssh/sshd_config
+echo "MaxSessions 2" >> /etc/ssh/sshd_config
+echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+echo "PermitEmptyPasswords no" >> /etc/ssh/sshd_config
+echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config
+echo "UsePAM yes" >> /etc/ssh/sshd_config
+echo "X11Forwarding no" >> /etc/ssh/sshd_config
+echo "PrintMotd no" >> /etc/ssh/sshd_config
+echo "UseDNS no" >> /etc/ssh/sshd_config
+echo "PermitTunnel no" >> /etc/ssh/sshd_config
+echo "AcceptEnv LANG LC_*" >> /etc/ssh/sshd_config
+echo "Subsystem   sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config
+echo "Match group jail" >> /etc/ssh/sshd_config
+echo " 	ChrootDirectory /bruh/lol/" >> /etc/ssh/sshd_config
+
+systemctl restart sshd	
+
+rm ~/.ssh/key
+rm ~/.ssh/key.pub
+
+iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -P OUTPUT DROP
+iptables -A INPUT -p tcp --dport 20 -j ACCEPT
+iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+iptables -A INPUT -p tcp --match multiport --dports 10000:10025 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -P INPUT DROP
+
+history -c
+message.txt
+6 KB
