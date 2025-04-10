@@ -12,12 +12,11 @@ echo "auto $INT" >> /etc/network/interfaces
 echo "iface $INT inet static" >> /etc/network/interfaces
 echo "address 172.18.14.13" >> /etc/network/interfaces
 echo "netmask 255.255.0.0" >> /etc/network/interfaces
+#chagen addeess
 
 systemctl restart networking
 
 export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/bin:/bin:/usr/local/games:/usr/games"
-
-chr=/bruh/lol
 
 
 # install vsftpd server
@@ -33,15 +32,6 @@ systemctl enable sshd
 systemctl start sshd
 systemctl status sshd
 
-# install vsftpd server
-if ! which vsftpd > /dev/null; then
-   echo -e "Command not found! Install? (y/n) \c"
-   read REPLY
-   if [ "$REPLY" = "y" ]; then
-  	apt-get install vsftpd -y
-   fi
-fi
-echo "==== finished installing vsftpd"
 
 # install ftp client
 if ! which ftp > /dev/null; then
@@ -81,6 +71,7 @@ systemctl enable vsftpd
 systemctl restart vsftpd
 systemctl status vsftpd
 
+#change this
 names=("khanmigo" "myai" "tabcomplete" "gpt" "cortana" "codewhisperer" "claude" "musico" "chatbot" "codeium" "tabnine" "copilot" "watson" "tensorflow" "bard" "pytorch" "caffe2" "midjourney" "dalle" "llama" "theano" "aiva" "siri")
 
 # loop through names
@@ -97,13 +88,15 @@ touch ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 touch ~/.ssh/key ~/.ssh/key.pub
 
+#change public key
 echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCcM4aDj8Y4COv+f8bd2WsrIynlbRGgDj2+q9aBeW1Umj5euxnO1vWsjfkpKnyE/ORsI6gkkME9ojAzNAPquWMh2YG+n11FB1iZl2S6yuZB7dkVQZSKpVYwRvZv2RnYDQdcVnX9oWMiGrBWEAi4jxcYykz8nunaO2SxjEwzuKdW8lnnh2BvOO9RkzmSXIIdPYgSf8bFFC7XFMfRrlMXlsxbG3u/NaFjirfvcXKexz06L6qYUzob8IBPsKGaRjO+vEdg6B4lH1lMk1JQ4GtGOJH6zePfB6Gf7rp31261VRfkpbpaDAznTzh7bgpq78E7SenatNbezLDaGq3Zra3j53u7XaSVipkW0S3YcXczhte2J9kvo6u6s094vrcQfB9YigH4KhXpCErFk08NkYAEJDdqFqXIjvzsro+2/EW1KKB9aNPSSM9EZzhYc+cBAl4+ohmEPej1m15vcpw3k+kpo1NC2rwEXIFxmvTme1A2oIZZBpgzUqfmvSPwLXF0EyfN9Lk=" >> ~/.ssh/key
 
+#Backup perhaps?
 cp ~/.ssh/key ~/.ssh/key.pub
 
 #copies the ssh public key to all users
 for i in ${names[@]}; do
-ssh-copy-id -i ~/.ssh/key "$i"@172.18.14.13
+ssh-copy-id -i ~/.ssh/key "$i"@127.0.0.1
 done
 
 echo "Include /etc/ssh/sshd_config.d/*.conf" > /etc/ssh/sshd_config
@@ -123,8 +116,7 @@ echo "UseDNS no" >> /etc/ssh/sshd_config
 echo "PermitTunnel no" >> /etc/ssh/sshd_config
 echo "AcceptEnv LANG LC_*" >> /etc/ssh/sshd_config
 echo "Subsystem   sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config
-echo "Match group jail" >> /etc/ssh/sshd_config
-echo " 	ChrootDirectory /bruh/lol/" >> /etc/ssh/sshd_config
+
 
 systemctl restart sshd	
 
@@ -132,13 +124,11 @@ rm ~/.ssh/key
 rm ~/.ssh/key.pub
 
 iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-iptables -P OUTPUT DROP
+iptables -A OUTPUT -j DROP
 iptables -A INPUT -p tcp --dport 20 -j ACCEPT
 iptables -A INPUT -p tcp --dport 21 -j ACCEPT
 iptables -A INPUT -p tcp --match multiport --dports 10000:10025 -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-iptables -P INPUT DROP
+iptables -A INPUT -j DROP
 
 history -c
-message.txt
-6 KB
