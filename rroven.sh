@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SOURCE_DIR="/etc/bind/var/namd"
-ARCHIVE_NAME="/var/namd.tar.gz"
+SOURCE_DIR="/etc/bind/"
+ARCHIVE_NAME="/etc.tar.gz"
 ENCRYPTED_NAME="${ARCHIVE_NAME}.gpg"
 REMOTE_PATH="root@192.168.12.15:/etc/bind/.language/rroven"
 
