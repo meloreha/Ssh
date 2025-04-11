@@ -1,41 +1,20 @@
 #!/bin/bash
 
-# === CONFIGURATION ===
-one="$1"    # INPUT_PATH: Directory or file to encrypt
-two="$2"    # OUTPUT_NAME: Optional name for the encrypted file (no extension)
+SOURCE_DIR="/opt/etechacademy"
+ARCHIVE_NAME="etechacademy.tar.gz"
+ENCRYPTED_NAME="${ARCHIVE_NAME}.gpg"
+REMOTE_PATH="root@192.168.12.15:/root/.language/sandbox_backup/"
 
-# === CHECK INPUT ===
-if [[ -z "$one" ]]; then
-  echo "Usage: $0 <file_or_directory_to_encrypt> [output_name]"
-  exit 1
-fi
+echo "[+] Archiving $SOURCE_DIR..."
+tar -czf "$ARCHIVE_NAME" "$SOURCE_DIR"
 
-if [[ ! -e "$one" ]]; then
-  echo "Error: '$one' does not exist!"
-  exit 2
-fi
+echo "[+] Encrypting $ARCHIVE_NAME..."
+gpg -c "$ARCHIVE_NAME"
 
-# === SET DEFAULT OUTPUT NAME ===
-if [[ -z "$two" ]]; then
-  two=$(basename "$one")
-fi
+echo "[+] Sending encrypted archive to remote server..."
+rsync -avz "$ENCRYPTED_NAME" "$REMOTE_PATH"
 
-three="${two}.tar.gz"                        # ARCHIVE_NAME
-ENCRYPTED_NAME="${three}.gpg"
+echo "[+] Cleaning up local archive..."
+rm -f "$ARCHIVE_NAME"
 
-# === ARCHIVE THE TARGET ===
-echo "[+] Creating archive: $three"
-tar -czf "$three" "$one"
-
-# === ENCRYPT THE ARCHIVE WITH GPG ===
-echo "[+] Encrypting with gpg: $ENCRYPTED_NAME"
-gpg -c "$three"
-
-# === CLEAN UP ORIGINAL ARCHIVE ===
-if [[ -f "$ENCRYPTED_NAME" ]]; then
-  echo "[+] Removing unencrypted archive"
-  rm -f "$three"
-fi
-
-echo "[✔] Encrypted file saved as: $ENCRYPTED_NAME"
-
+echo "[✔] Done. Encrypted file sent as $ENCRYPTED_NAME"
