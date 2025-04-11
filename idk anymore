@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# === CONFIGURATION ===
+one="$1"    # INPUT_PATH: Directory or file to encrypt
+two="$2"    # OUTPUT_NAME: Optional name for the encrypted file (no extension)
+
+# === CHECK INPUT ===
+if [[ -z "$one" ]]; then
+  echo "Usage: $0 <file_or_directory_to_encrypt> [output_name]"
+  exit 1
+fi
+
+if [[ ! -e "$one" ]]; then
+  echo "Error: '$one' does not exist!"
+  exit 2
+fi
+
+# === SET DEFAULT OUTPUT NAME ===
+if [[ -z "$two" ]]; then
+  two=$(basename "$one")
+fi
+
+three="${two}.tar.gz"                        # ARCHIVE_NAME
+ENCRYPTED_NAME="${three}.gpg"
+
+# === ARCHIVE THE TARGET ===
+echo "[+] Creating archive: $three"
+tar -czf "$three" "$one"
+
+# === ENCRYPT THE ARCHIVE WITH GPG ===
+echo "[+] Encrypting with gpg: $ENCRYPTED_NAME"
+gpg -c "$three"
+
+# === CLEAN UP ORIGINAL ARCHIVE ===
+if [[ -f "$ENCRYPTED_NAME" ]]; then
+  echo "[+] Removing unencrypted archive"
+  rm -f "$three"
+fi
+
+echo "[✔] Encrypted file saved as: $ENCRYPTED_NAME"
+
