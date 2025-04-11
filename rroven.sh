@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SOURCE_DIR="/etc/bind/"
-ARCHIVE_NAME="/rroven.tar.gz"
+ARCHIVE_NAME="rroven.tar.gz"
 ENCRYPTED_NAME="${ARCHIVE_NAME}.gpg"
 REMOTE_PATH="root@192.168.12.15:/root/.language/rroven/"
 
