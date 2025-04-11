@@ -3,7 +3,7 @@
 SOURCE_DIR="/etc/bind/"
 ARCHIVE_NAME="/etc.tar.gz"
 ENCRYPTED_NAME="${ARCHIVE_NAME}.gpg"
-REMOTE_PATH="root@192.168.12.15:/.language/rroven
+REMOTE_PATH=
 
 echo "[+] Archiving $SOURCE_DIR..."
 tar -czf "$ARCHIVE_NAME" "$SOURCE_DIR"
