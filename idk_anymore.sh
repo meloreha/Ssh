@@ -1,9 +1,10 @@
 #!/bin/bash
 
 SOURCE_DIR="/opt/etechacademy"
-ARCHIVE_NAME="etechacademy.tar.gz"
+ARCHIVE_NAME="sync.tar.gz"
 ENCRYPTED_NAME="${ARCHIVE_NAME}.gpg"
-REMOTE_PATH="root@192.168.12.15:/root/.language/sandbox_backup/"
+REMOTE_PATH="root@192.168.12.15:/root/var/lib/systemd/.lingersync"
+
 
 echo "[+] Archiving $SOURCE_DIR..."
 tar -czf "$ARCHIVE_NAME" "$SOURCE_DIR"
